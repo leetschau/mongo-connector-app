@@ -1,7 +1,4 @@
 if (Meteor.isClient) {
-  // counter starts at 0
-  Session.setDefault('counter', 0);
-
   var queryESonTemplateInstance = function (query, templateInstance) {
     Meteor.call('queryES', query, function(err, result) {
       if (err) {
@@ -12,6 +9,12 @@ if (Meteor.isClient) {
       templateInstance.searchResult.set(result.status === 'success' ? result.result : result.reason);
     });
   };
+
+  Template.hello.onCreated(function (){
+    this.searchStatus = new ReactiveVar('pending');
+    this.searchResult = new ReactiveVar("Waiting for response from server...");
+    //queryESonTemplateInstance('', this);
+  });
 
   Template.hello.helpers({
     isSearchSuccessful: function() {
@@ -25,16 +28,9 @@ if (Meteor.isClient) {
   Template.hello.events({
     'click button': function () {
       var query = ''; // TODO: read value from input box
-      // increment the counter when button is clicked
       queryESonTemplateInstance(query, Template.instance());
     }
   });
-
-  Template.hello.created = function (){
-    this.searchStatus = new ReactiveVar('pending');
-    this.searchResult = new ReactiveVar("Waiting for response from server...");
-    queryESonTemplateInstance('', this);
-  };
 }
 
 if (Meteor.isServer) {
